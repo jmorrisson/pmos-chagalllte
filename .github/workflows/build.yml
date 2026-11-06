@@ -68,7 +68,7 @@ jobs:
           
           # The linux apport is copied as a subdirectory under $APORTS/linux/
           # so the path becomes $APORTS/linux/linux-samsung-chagalllte
-          cp -r "$HOME/.local/var/pmbootstrap/overlay/device/testing/linux-samsung-chagalllte" \
+          cp -r "$GITHUB_WORKSPACE/overlay/device/testing/linux-samsung-chagalllte" \
              "$APORTS/linux/linux-samsung-chagalllte/"
 
       - name: Seed pmbootstrap config (non-interactive)
