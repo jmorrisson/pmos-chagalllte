@@ -51,11 +51,20 @@ jobs:
         run: |
           set -euo pipefail
           APORTS="$HOME/.local/var/pmbootstrap/cache_git/pmaports"
-          # Upstream also has archived chagalllte packages with the same names;
-          # remove them so pmbootstrap does not see duplicate aport folders.
+          # Remove upstream duplicates so pmbootstrap sees only our aport
           rm -rf "$APORTS/device/archived/device-samsung-chagalllte" \
                  "$APORTS/device/archived/linux-samsung-chagalllte"
-          cp -r overlay/device/testing/. "$APORTS/device/testing/"
+          
+          # Copy the testing apport (APKBUILD + deviceinfo)
+          cp -r overlay/device/testing/device-samsung-chagalllte \
+                "$APORTS/device/testing/"
+          cp -r overlay/device/testing/linux-samsung-chagalllte \
+                "$APORTS/linux/"
+          
+          # Also copy deviceinfo from the archived version (the testing aport
+          # doesn't include it; only the archived one does)
+          cp "$APORTS/device/archived/device-samsung-chagallwifi-downstream/deviceinfo" \
+             "$APORTS/device/testing/device-samsung-chagalllte/"
 
       - name: Seed pmbootstrap config (non-interactive)
         run: |
@@ -82,9 +91,9 @@ jobs:
           # APKBUILD declares. This is equivalent to what abuild does.
           
           echo "=== Verifying device-samsung-chagalllte ==="
-          cd $HOME/.local/var/pmbootstrap/cache_git/pmaports/device/testing
+          cd $HOME/.local/var/pmbootstrap/cache_git/pmaports/device/testing/device-samsung-chagalllte
           ACTUAL=$(sha512sum deviceinfo | cut -d' ' -f1)
-          EXPECTED="02591ff1477700e2792837933539c854ba65f0ae82d8d79ac5b8b0e62be4dc4222bca14add4d5128baeed083fc5822da9dd2e5af66391b1f4c5631bf61f3d2d"
+          EXPECTED="45bbde49d291ab220b5749561183cd5d8135124bc7b5dcfe621ca7ae76d9c6fa538303a5f59fdf797a7d3675c4a8c2ecb45cfa5fe68c308ce55f75ceb98bc466"
           if [ "$ACTUAL" != "$EXPECTED" ]; then
             echo "::error::Checksum mismatch for deviceinfo:"
             echo "  Expected: $EXPECTED"
@@ -92,6 +101,16 @@ jobs:
             exit 1
           fi
           echo "  ✓ deviceinfo checksum OK"
+          
+          ACTUAL=$(sha512sum APKBUILD | cut -d' ' -f1)
+          EXPECTED="501a2b61dde56f4ca6614161ada15d7b50ecfbe5dcb4205d0e4b85512c04380073addff65819737d7ab35764a26848dc994ee9e1a276a743405b5d328c0d0fdb"
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::Checksum mismatch for APKBUILD:"
+            echo "  Expected: $EXPECTED"
+            echo "  Got:      $ACTUAL"
+            exit 1
+          fi
+          echo "  ✓ APKBUILD checksum OK"
           
           echo "=== Verifying linux-samsung-chagalllte ==="
           cd $HOME/.local/var/pmbootstrap/cache_git/pmaports/linux/samsung-chagalllte
