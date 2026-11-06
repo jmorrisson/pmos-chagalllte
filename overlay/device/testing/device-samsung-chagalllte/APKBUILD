@@ -1,0 +1,49 @@
+# Reference: <https://postmarketos.org/devicepkg>
+pkgname=device-samsung-chagalllte
+pkgdesc="Samsung Galaxy Tab S 10.5 LTE"
+pkgver=1
+pkgrel=0
+url="https://postmarketos.org"
+license="MIT"
+arch="armv7"
+options="!check !archcheck"
+depends="
+	firmware-samsung-chagall
+	mkbootimg
+	postmarketos-base
+"
+makedepends="devicepkg-dev"
+source="deviceinfo"
+subpackages="
+	$pkgname-kernel-downstream:kernel_downstream
+	$pkgname-nonfree-firmware:nonfree_firmware
+"
+
+build() {
+	devicepkg_build $startdir $pkgname
+}
+
+package() {
+	devicepkg_package $startdir $pkgname
+}
+
+kernel_downstream() {
+	pkgdesc="Downstream 3.4 kernel (display, touch; modem drivers present but unsupported)"
+	depends="
+		linux-samsung-chagalllte
+		msm-fb-refresher
+		postmarketos-base-downstream
+		postmarketos-base-downstream-disable-udev-v4l
+	"
+	devicepkg_subpackage_kernel $startdir $pkgname $subpkgname
+}
+
+nonfree_firmware() {
+	pkgdesc="Non-free firmware for the Samsung Galaxy Tab S 10.5 LTE"
+	depends="firmware-samsung-chagall"
+	mkdir "$subpkgdir"
+}
+
+sha512sums="
+a2aa3da3df97c1c859248b0b8c61d37150f4efd4f4289b0ad6f6dfa1a247a1a21c06ca122dbd6cf613282bce93c9b66cecbd3affc6f75565c3675be38067b2c6  deviceinfo
+"

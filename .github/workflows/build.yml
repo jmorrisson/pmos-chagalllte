@@ -1,0 +1,64 @@
+name: build-pmos-chagalllte
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Install pmbootstrap
+        run: |
+          set -e
+          git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git "$HOME/pmbootstrap"
+          python3 -m pip install --user --break-system-packages "$HOME/pmbootstrap"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Apply binfmt registration fix (dash-safe echo)
+        run: |
+          set -e
+          python3 ci-patch/binfmt_patch.py "$HOME"/.local/lib/python3*/site-packages/pmb/chroot/binfmt.py
+
+      - name: Initialize pmbootstrap (defaults)
+        run: |
+          set -e
+          printf '\n%.0s' {1..25} | pmbootstrap init
+
+      - name: Install chagalllte aports overlay
+        run: |
+          set -e
+          APORTS="$HOME/.local/var/pmbootstrap/cache_git/pmaports"
+          rm -rf "$APORTS/device/archived/device-samsung-chagalllte" \
+                 "$APORTS/device/archived/linux-samsung-chagalllte"
+          cp -r overlay/device/testing/* "$APORTS/device/testing/"
+          pmbootstrap config device samsung-chagalllte
+          pmbootstrap config kernel downstream
+          pmbootstrap config ui mate
+          pmbootstrap status
+
+      - name: Build postmarketOS image (recovery zip + export)
+        run: |
+          set -e
+          printf '1234\n1234\n\n\n\n\n\n' | pmbootstrap install --android-recovery-zip
+          pmbootstrap export
+          ROOTFS="$HOME/.local/var/pmbootstrap/chroot_buildroot_armv7/home/pmos/rootfs"
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          cp -L "$ROOTFS"/*.img "$ROOTFS"/*.zip "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+          ls -la "$GITHUB_WORKSPACE/artifacts/"
+
+      - name: Upload images
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmos-samsung-chagalllte
+          if-no-files-found: error
+          path: artifacts/*
