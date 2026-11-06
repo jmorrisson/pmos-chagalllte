@@ -20,11 +20,12 @@ jobs:
           sudo docker image prune --all --force || true
           df -h /
 
-      - name: Install pmbootstrap
+      - name: Install pmbootstrap 3.12.1
         run: |
           set -euo pipefail
+          # Pin to the tag this port was validated against.
           git clone --depth=1 --branch 3.12.1 \
-            https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git "$HOME/pmbootstrap"
+            https://gitlab.postmarketos.org/postMarketOS/pmbootstrap.git "$HOME/pmbootstrap"
           python3 -m pip install --user --break-system-packages "$HOME/pmbootstrap"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           "$HOME/.local/bin/pmbootstrap" --version
@@ -37,12 +38,14 @@ jobs:
           test "${#paths[@]}" -gt 0 || { echo "binfmt.py not found"; exit 1; }
           python3 ci-patch/binfmt_patch.py "${paths[@]}"
 
-      - name: Initialize pmbootstrap (defaults)
+      - name: Clone pmaports (edge / main)
         run: |
           set -euo pipefail
-          printf '\n%.0s' {1..40} > /tmp/pmb-init-answers
-          pmbootstrap init < /tmp/pmb-init-answers
-          pmbootstrap status
+          WORK="$HOME/.local/var/pmbootstrap"
+          mkdir -p "$WORK/cache_git"
+          git clone --depth=1 --branch main \
+            https://gitlab.postmarketos.org/postMarketOS/pmaports.git \
+            "$WORK/cache_git/pmaports"
 
       - name: Install chagalllte aports overlay
         run: |
@@ -53,12 +56,28 @@ jobs:
           rm -rf "$APORTS/device/archived/device-samsung-chagalllte" \
                  "$APORTS/device/archived/linux-samsung-chagalllte"
           cp -r overlay/device/testing/. "$APORTS/device/testing/"
-          pmbootstrap checksum device-samsung-chagalllte
+
+      - name: Seed pmbootstrap config (non-interactive)
+        run: |
+          set -euo pipefail
+          WORK="$HOME/.local/var/pmbootstrap"
+          # No `pmbootstrap init`: it requires an interactive vendor/codename
+          # prompt. Write the config and the work-folder version marker instead.
+          mkdir -p "$HOME/.config" "$WORK"
+          : > "$HOME/.config/pmbootstrap_v3.cfg"
+          python3 -c "import pmb.config; print(pmb.config.work_version)" > "$WORK/version"
           pmbootstrap config device samsung-chagalllte
           pmbootstrap config kernel downstream
           pmbootstrap config ui mate
           pmbootstrap config service_manager openrc
+          pmbootstrap config auto_zap_misconfigured_chroots yes
           pmbootstrap status
+
+      - name: Verify aport checksums
+        run: |
+          set -euo pipefail
+          pmbootstrap checksum device-samsung-chagalllte
+          pmbootstrap checksum linux-samsung-chagalllte
 
       - name: Build image (TWRP recovery zip)
         run: |
@@ -76,7 +95,10 @@ jobs:
           ZIP=$(ls "$WORK"/chroot_buildroot_armv7/var/lib/postmarketos-android-recovery-installer/pmos-*.zip)
           echo "zip: $ZIP"
           ls -l "$ZIP"
-          unzip -p "$ZIP" rootfs.tar.gz | tar -xzO ./boot/boot.img > /tmp/boot.img
+          unzip -p "$ZIP" rootfs.tar.gz > /tmp/rootfs.tar.gz
+          ls -l /tmp/rootfs.tar.gz
+          tar -tzf /tmp/rootfs.tar.gz | grep -E '^\./boot/' | head -20
+          tar -xzf /tmp/rootfs.tar.gz -O ./boot/boot.img > /tmp/boot.img
           SIZE=$(stat -c %s /tmp/boot.img)
           echo "boot.img size: $SIZE bytes ($((SIZE / 1024)) KiB); limit: 8388608 bytes"
           if [ "$SIZE" -gt 8388608 ]; then

@@ -52,14 +52,17 @@ The partition layout of this tablet (read from the device):
 Push to `main` or run the `build-pmos-chagalllte` workflow manually. On an
 `ubuntu-latest` runner (real kernel, working 32-bit binfmt) it:
 
-1. installs pmbootstrap from git
+1. installs pmbootstrap **3.12.1** (the tag this port is validated against)
 2. patches a pmbootstrap bug where the qemu binfmt registration is written
    with `sh -c echo "\x7f..."` — on dash-based hosts the escapes are literal,
    producing a broken magic (`ci-patch/binfmt_patch.py`)
-3. copies the aports overlay into the pmaports checkout and removes the
-   archived upstream `chagalllte` duplicates
-4. runs `pmbootstrap install --android-recovery-zip --recovery-install-partition USERDATA`
-5. verifies the boot.img size and uploads the TWRP zip + boot.img as artifacts
+3. clones the `main` (edge) pmaports branch and copies the aports overlay in,
+   removing the archived upstream `chagalllte` duplicates
+4. seeds `pmbootstrap_v3.cfg` and the work-folder version marker directly
+   instead of running `pmbootstrap init` (init insists on an interactive
+   vendor/codename prompt, which cannot be answered safely from a script)
+5. runs `pmbootstrap install --android-recovery-zip --recovery-install-partition USERDATA`
+6. verifies the boot.img size and uploads the TWRP zip + boot.img as artifacts
 
 Runtime is roughly 40–70 minutes (kernel cross-compile + MATE rootfs).
 
