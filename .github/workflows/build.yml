@@ -50,7 +50,8 @@ jobs:
       - name: Install chagalllte aports overlay
         run: |
           set -euo pipefail
-          APORTS="$HOME/.local/var/pmbootstrap/cache_git/pmaports"
+          WORK="$HOME/.local/var/pmbootstrap"
+          APORTS="$WORK/cache_git/pmaports"
           # Remove upstream duplicates so pmbootstrap sees only our aport
           rm -rf "$APORTS/device/archived/device-samsung-chagalllte" \
                  "$APORTS/device/archived/linux-samsung-chagalllte"
