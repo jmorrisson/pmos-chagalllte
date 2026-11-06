@@ -8,13 +8,7 @@ url="https://postmarketos.org"
 license="MIT"
 arch="armv7"
 options="!check !archcheck"
-depends="
-	# The kernel must also be a dependency of the main package (not only of
-	# the kernel subpackage), otherwise `pmbootstrap install` does not walk
-	# into the kernel aport and never builds it.
-	linux-samsung-chagalllte
-	firmware-samsung-chagall
-"
+depends="linux-samsung-chagalllte firmware-samsung-chagall"
 makedepends="devicepkg-dev"
 source="deviceinfo"
 subpackages="
