@@ -55,24 +55,21 @@ jobs:
           rm -rf "$APORTS/device/archived/device-samsung-chagalllte" \
                  "$APORTS/device/archived/linux-samsung-chagalllte"
 
-          # Copy the testing aport (APKBUILD + deviceinfo)
+          # Copy the device apport (APKBUILD + deviceinfo)
           cp -r overlay/device/testing/device-samsung-chagalllte \
                 "$APORTS/device/testing/"
-          cp -r overlay/device/testing/linux-samsung-chagalllte \
-                "$APORTS/linux/"
+
+          # The linux aport: pmbootstrap expects the folder to be named after the pkgname
+          # under $APORTS/linux/. Copy it there directly.
+          mkdir -p "$APORTS/linux/linux-samsung-chagalllte"
+          cp -r overlay/device/testing/linux-samsung-chagalllte/* \
+             "$APORTS/linux/linux-samsung-chagalllte/"
 
           # Also copy deviceinfo from the archived version (the testing aport
           # doesn't include it; only the archived one does)
           cp "$APORTS/device/archived/device-samsung-chagallwifi-downstream/deviceinfo" \
              "$APORTS/device/testing/device-samsung-chagalllte/"
 
-          # The linux aport is copied as a subdirectory under $APORTS/linux/
-          # so the path becomes $APORTS/linux/linux-samsung-chagalllte
-          cp -r "$GITHUB_WORKSPACE/overlay/device/testing/linux-samsung-chagalllte" \
-             "$APORTS/linux/linux-samsung-chagalllte/"
-          
-          # Remove the extra subdirectory layer (pmbootstrap expects flat layout)
-          rm -rf "$APORTS/linux/linux-samsung-chagalllte/linux-samsung-chagalllte"
 
       - name: Seed pmbootstrap config (non-interactive)
         run: |
