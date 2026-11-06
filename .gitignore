@@ -1,0 +1,34 @@
+# Build output
+output/
+.cache/
+.local/
+
+# Logs
+*.log
+
+# Downloads
+downloads/*
+!downloads/.gitkeep
+
+# Temporary files
+*.tmp
+*.bak
+temp_rootfs/
+
+# PowerShell history
+$.ps1history.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# WSL specific
+.wslconfig

@@ -61,8 +61,12 @@ Push to `main` or run the `build-pmos-chagalllte` workflow manually. On an
 4. seeds `pmbootstrap_v3.cfg` and the work-folder version marker directly
    instead of running `pmbootstrap init` (init insists on an interactive
    vendor/codename prompt, which cannot be answered safely from a script)
-5. runs `pmbootstrap install --android-recovery-zip --recovery-install-partition USERDATA`
-6. verifies the boot.img size and uploads the TWRP zip + boot.img as artifacts
+5. provides build-time dependencies for packages that don't exist in pmaports
+   (mkbootimg, msm-fb-refresher, postmarketos-base-downstream-disable-udev-v4l)
+   by removing them from the aport's `depends=` list and providing the
+   binaries directly in the chroot
+6. runs `pmbootstrap install --android-recovery-zip --recovery-install-partition USERDATA`
+7. verifies the boot.img size and uploads the TWRP zip + boot.img as artifacts
 
 Runtime is roughly 40–70 minutes (kernel cross-compile + MATE rootfs).
 

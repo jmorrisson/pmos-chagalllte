@@ -14,12 +14,6 @@ depends="
 	# into the kernel aport and never builds it.
 	linux-samsung-chagalllte
 	firmware-samsung-chagall
-	mkbootimg
-	msm-fb-refresher
-	postmarketos-base
-	postmarketos-base-downstream
-	postmarketos-base-downstream-disable-udev-v4l
-	abuild  # required by pmbootstrap checksum step
 "
 makedepends="devicepkg-dev"
 source="deviceinfo"
