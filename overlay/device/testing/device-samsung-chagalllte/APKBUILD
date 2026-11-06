@@ -19,6 +19,7 @@ depends="
 	postmarketos-base
 	postmarketos-base-downstream
 	postmarketos-base-downstream-disable-udev-v4l
+	abuild  # required by pmbootstrap checksum step
 "
 makedepends="devicepkg-dev"
 source="deviceinfo"
