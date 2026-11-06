@@ -70,6 +70,9 @@ jobs:
           # so the path becomes $APORTS/linux/linux-samsung-chagalllte
           cp -r "$GITHUB_WORKSPACE/overlay/device/testing/linux-samsung-chagalllte" \
              "$APORTS/linux/linux-samsung-chagalllte/"
+          
+          # Remove the extra subdirectory layer (pmbootstrap expects flat layout)
+          rm -rf "$APORTS/linux/linux-samsung-chagalllte/linux-samsung-chagalllte"
 
       - name: Seed pmbootstrap config (non-interactive)
         run: |
