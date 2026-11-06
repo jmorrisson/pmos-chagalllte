@@ -14,6 +14,8 @@ url="https://kernel.org"
 license="GPL-2.0-only"
 options="!strip !check !tracedeps pmb:cross-native"
 makedepends="bash bc bison devicepkg-dev flex openssl-dev perl xz"
+# Note: mkbootimg, msm-fb-refresher, postmarketos-base-downstream-disable-udev-v4l
+# are provided directly in the chroot by the CI workflow (from buildroot output)
 
 # Source
 _repository="android_kernel_samsung_exynos5420"

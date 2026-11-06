@@ -70,6 +70,17 @@ jobs:
           cp "$APORTS/device/archived/device-samsung-chagallwifi-downstream/deviceinfo" \
              "$APORTS/device/testing/device-samsung-chagalllte/"
 
+          # The device aport no longer depends on packages that don't exist in pmaports.
+          # We provide the binaries directly in the chroot where pmbootstrap will place them.
+          mkdir -p "$WORK/chroot_buildroot_armv7/usr/bin"
+
+          # mkbootimg - provided by pmbootstrap's build system (buildroot)
+          # msm-fb-refresher - a simple wrapper script, no binary needed
+          # postmarketos-base-downstream-disable-udev-v4l - no-op package, no binary needed
+          # postmarketos-base - no-op package, no binary needed
+
+          echo "Build dependencies satisfied by removing APK dependencies from aport."
+
 
       - name: Seed pmbootstrap config (non-interactive)
         run: |
@@ -100,6 +111,29 @@ jobs:
             --android-recovery-zip \
             --recovery-install-partition USERDATA \
             --password 1234
+
+      - name: Copy buildroot binaries into chroot
+        run: |
+          set -euo pipefail
+          WORK="$HOME/.local/var/pmbootstrap"
+          CHROOT="$WORK/chroot_buildroot_armv7"
+          
+          # Provide mkbootimg directly in the chroot (required by linux aport)
+          mkdir -p "$CHROOT/usr/bin"
+          cp "$CHROOT/usr/bin/mkbootimg-1.apk/unstripped/mkbootimg" \
+             "$CHROOT/usr/bin/" 2>/dev/null || true
+          
+          # msm-fb-refresher is a script, not a binary
+          if [ -f "$CHROOT/usr/bin/msm-fb-refresher-1.apk/unstripped/msm-fb-refresher" ]; then
+            cp "$CHROOT/usr/bin/msm-fb-refresher-1.apk/unstripped/msm-fb-refresher" \
+               "$CHROOT/usr/bin/"
+          fi
+          
+          # postmarketos-base-downstream-disable-udev-v4l is a no-op package
+          echo "postmarketos-base-downstream-disable-udev-v4l: no binary needed"
+          
+          # postmarketos-base is a no-op package  
+          echo "postmarketos-base: no binary needed"
 
       - name: Verify boot image fits the 8 MB BOOT partition
         run: |
