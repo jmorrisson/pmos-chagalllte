@@ -1,0 +1,2 @@
+# Keep everything LF so checksums match between the repo and the CI checkout.
+* text=auto eol=lf

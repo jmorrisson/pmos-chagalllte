@@ -39,7 +39,7 @@ prepare() {
 
 build() {
 	unset LDFLAGS
-	make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" KCFLAGS="-std=gnu89" \
+	make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" KCFLAGS="-std=gnu89 -fcommon -Wno-error" \
 		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
 }
 
@@ -49,7 +49,7 @@ package() {
 
 sha512sums="
 c10c0b457a37ca89172203d83b0c5efd3b4fd4a9e4ff5b64328737275cfc4b19d4a316eab61aa5561943f29f70bb2bebac0efba54854e01553b90b8dd639d4bd  linux-samsung-chagalllte-fed1690ca92e33cc6a5febe2e45dd909b9090d37.tar.gz
-7d4637583301fdb013d4702f3449d146877911bddf88ef220ea2bae8fb22db8779072d2b5d0865c0f72dd9e1af0db4d1465609d28d6b6ae2e77314938632e7da  config-samsung-chagalllte.armv7
+c3f9b22c84d36060d278555686378b00fff2c34a12f991e4d232e839a29a73eecb061b36aee3e23fc99dfe05400e533be331fa545543911285b54b2a78c3a187  config-samsung-chagalllte.armv7
 5214a850d496bed9e17575bd0b52e9e4415bcbd5a89863f924c5bfed848f684c0a95e8d10c9ef93c0e00149f034cf5e897d1b268be35676a600b3ee6e1917501  01-netfilter-symbols.patch
 5fad0940e90da71277b70b6e72fbb75fcc5e12625e65f827ae896d448628b252b3312539f9c184b26ffe5ca3b343a56b388ea6addb7fe446c7d1ae2aefb4b51e  02-usb_gadget-set-random-rndis-host-MAC-address-to-prev.patch
 a3df24c8d9116a3ad3559aac5ce126049e9123df633990ec72facd64ef538ed773e3ac0da233f2e04d99164d590340d598cfb3da3bbea502cf7c2cd3ef08cf24  03-drivers-psmouse-add-guard-for-Finger-Sensing-Pad-cod.patch

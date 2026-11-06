@@ -22,11 +22,7 @@ deviceinfo_create_initfs_extra="true"
 # Bootloader related
 deviceinfo_flash_method="heimdall-bootimg"
 deviceinfo_generate_bootimg="true"
-deviceinfo_bootimg_qcdt="false"
 deviceinfo_bootimg_append_seandroidenforce="true"
-deviceinfo_bootimg_mtk_mkimage="false"
-deviceinfo_bootimg_dtb_second="false"
-deviceinfo_flash_offset_base="0x10000000"
 deviceinfo_flash_offset_kernel="0x00008000"
 deviceinfo_flash_offset_ramdisk="0x01000000"
 deviceinfo_flash_offset_second="0x00f00000"
@@ -35,4 +31,8 @@ deviceinfo_flash_pagesize="2048"
 
 # Heimdall related
 deviceinfo_flash_heimdall_partition_kernel="BOOT"
-deviceinfo_flash_heimdall_partition_rootfs="SYSTEM"
+# SYSTEM is only 2.39 GB on this tablet (mmcblk0p18) and is too small for a
+# desktop rootfs; USERDATA is 11.76 GB (mmcblk0p21). The recovery zip creates
+# a nested partition table inside it (pmOS_boot + pmOS_root), which the
+# initramfs locates via mount_subpartitions().
+deviceinfo_flash_heimdall_partition_rootfs="USERDATA"
