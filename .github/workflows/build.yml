@@ -65,6 +65,11 @@ jobs:
           # doesn't include it; only the archived one does)
           cp "$APORTS/device/archived/device-samsung-chagallwifi-downstream/deviceinfo" \
              "$APORTS/device/testing/device-samsung-chagalllte/"
+          
+          # The linux apport is copied as a subdirectory under $APORTS/linux/
+          # so the path becomes $APORTS/linux/linux-samsung-chagalllte
+          cp -r "$WORK/overlay/device/testing/linux-samsung-chagalllte" \
+             "$APORTS/linux/linux-samsung-chagalllte/"
 
       - name: Seed pmbootstrap config (non-interactive)
         run: |
